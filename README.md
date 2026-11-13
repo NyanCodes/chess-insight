@@ -5,7 +5,7 @@ Analyses chess games with Stockfish and explains each mistake in plain words. It
 ## Quick start
 
 ```bash
-git clone <this repository> chess-insight
+git clone https://github.com/NyanCodes/chess-insight.git
 cd chess-insight
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements-dev.txt
