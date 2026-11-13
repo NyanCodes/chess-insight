@@ -1,0 +1,115 @@
+{
+  "piece.pawn": "pawn",
+  "piece.knight": "knight",
+  "piece.bishop": "bishop",
+  "piece.rook": "rook",
+  "piece.queen": "queen",
+  "piece.king": "king",
+
+  "side.white": "White",
+  "side.black": "Black",
+
+  "draw_reason.insufficient_material": "insufficient material",
+  "draw_reason.threefold_repetition": "threefold repetition",
+  "draw_reason.fivefold_repetition": "fivefold repetition",
+  "draw_reason.fifty_moves": "the fifty-move rule",
+  "draw_reason.seventyfive_moves": "the seventy-five-move rule",
+
+  "explain.book_move": "This is a known opening line ({opening}).",
+  "explain.left_book": "This move leaves the known opening lines.",
+  "explain.best_move": "This was the engine's top choice.",
+  "explain.good_alternative": "A sound alternative; the engine slightly preferred {best}.",
+  "explain.engine_preferred": "The engine preferred {best}.",
+  "explain.eval_swing": "The evaluation moved from {before_cp} to {after_cp}.",
+  "explain.hung_piece": "It left the {piece} on {square} to be taken by {captured_by}.",
+  "explain.lost_material": {
+    "_count": "amount",
+    "one": "It lost about {amount} point of material.",
+    "other": "It lost about {amount} points of material."
+  },
+  "explain.missed_capture": "It missed the capture {best}, which wins material.",
+  "explain.refutation": "The strongest reply is {reply}.",
+  "explain.missed_mate": "It missed mate in {mate_in} with {best}.",
+  "explain.allowed_mate": "It allowed mate in {mate_in}.",
+  "explain.unclear_mate": "Forced-mate lines make this move hard to judge.",
+  "explain.terminal_checkmate": "{winner} delivered checkmate.",
+  "explain.terminal_stalemate": "The game ended in stalemate.",
+  "explain.terminal_draw": "The game was drawn by {reason}.",
+
+  "actor.you": "You",
+  "actor.white": "White",
+  "actor.black": "Black",
+  "actor_mid.you": "you",
+  "actor_mid.white": "White",
+  "actor_mid.black": "Black",
+
+  "list.pair": "{first} and {second}",
+  "list.start": "{first}, {rest}",
+  "list.middle": "{first}, {rest}",
+  "list.end": "{first}, and {last}",
+
+  "narr.heading": {
+    "_count": "count",
+    "one": "♟ Game story — {count} game",
+    "other": "♟ Game story — {count} games"
+  },
+  "narr.game_header": "Game {number} — {event}.",
+  "narr.game_header_plain": "Game {number}.",
+  "narr.outcome.checkmate": {
+    "_count": "plies",
+    "one": "{winner} won by checkmate in {plies} ply.",
+    "other": "{winner} won by checkmate in {plies} plies."
+  },
+  "narr.outcome.won": "{winner} won.",
+  "narr.outcome.stalemate": "The game ended in a stalemate.",
+  "narr.outcome.draw": "The game ended in a draw.",
+  "narr.outcome.unknown": "The game has no recorded result.",
+  "narr.players": "{white} (White) vs {black} (Black).",
+  "narr.unknown_name": "Unknown",
+  "narr.you_played": "You played {side}.",
+
+  "narr.book.through": "Both players followed known theory through {move} ({opening}).",
+  "narr.book.opened": "{actor} opened with {move} ({opening}), a known line.",
+  "narr.left_book.sound": "{actor} left book first with {move}, a sound choice.",
+  "narr.left_book.weak": "{actor} left book first with {move}; the engine preferred {best}.",
+  "narr.left_book.plain": "{actor} left book first with {move}.",
+
+  "narr.turn.lead": "The game turned at {move}.",
+  "narr.slip.lead": "The biggest slip was {move}, an inaccuracy.",
+  "narr.preferred.winning": "The engine preferred {best}, with {who} clearly winning.",
+  "narr.preferred.better": "The engine preferred {best}, which keeps {who} ahead.",
+  "narr.preferred.level": "The engine preferred {best}, which keeps {who} roughly level.",
+  "narr.preferred.worse": "The engine preferred {best}, though the position stays slightly worse for {who}.",
+  "narr.preferred.losing": "The engine preferred {best}, though the position is already difficult for {who}.",
+  "narr.took_chance": "{actor} took the chance immediately with {move}.",
+  "narr.passed": "{actor} did not take advantage with {move}.",
+  "narr.also.inaccuracy": "{actor} also made an inaccuracy at {move}; the engine preferred {best}.",
+  "narr.also.mistake": "{actor} also made a mistake at {move}; the engine preferred {best}.",
+  "narr.also.blunder": "{actor} also made a blunder at {move}; the engine preferred {best}.",
+
+  "narr.tally.none": "{actor}: no errors.",
+  "narr.tally.errors": "{actor}: {items}.",
+  "narr.tally.blunder": {"_count": "count", "one": "{count} blunder", "other": "{count} blunders"},
+  "narr.tally.mistake": {"_count": "count", "one": "{count} mistake", "other": "{count} mistakes"},
+  "narr.tally.inaccuracy": {"_count": "count", "one": "{count} inaccuracy", "other": "{count} inaccuracies"},
+  "narr.accuracy": {
+    "_count": "total",
+    "one": "{actor}: {matched} of {total} move was the engine's top choice.",
+    "other": "{actor}: {matched} of {total} moves were the engine's top choice."
+  },
+  "narr.clean": "Neither side made a significant error.",
+
+  "narr.trimmed": "Some details were left out to fit one message.",
+  "narr.exceeds": "This report exceeds the message limit. Full report is available from the JSON CLI.",
+  "narr.disclaimer": "Local Stockfish estimates, not official Chess.com grades.",
+
+  "narr.position.title": "♟ Stockfish 19 position analysis — {side} to move",
+  "narr.position.fen": "FEN: {fen}",
+  "narr.position.over": "Game over: {result}",
+  "narr.position.candidate": "{index}. {move} · White eval {evaluation}",
+  "narr.position.pv": "   PV: {pv}",
+  "narr.position.advice": "Advice: Check forcing moves and compare candidate variations; short engine searches are not definitive.",
+  "narr.position.eval.mate": "mate for {side} in {mate}",
+  "narr.position.eval.over": "game over",
+  "narr.position.eval.unavailable": "unavailable"
+}
