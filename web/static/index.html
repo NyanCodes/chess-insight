@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chess analyzer · inspector</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="static/vendor/cm-chessboard/assets/chessboard.css">
+  <link rel="stylesheet" href="static/vendor/cm-chessboard/assets/extensions/arrows/arrows.css">
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+  <header class="top">
+    <h1>Chess analyzer <small>inspector</small></h1>
+    <form id="input" autocomplete="off">
+      <textarea id="pgn" rows="3" spellcheck="false" placeholder="Paste a PGN (up to 3 games) or a FEN, or choose a file…"></textarea>
+      <div class="controls">
+        <label class="file">PGN file <input id="file" type="file" accept=".pgn,.txt,text/plain"></label>
+        <label>Seconds per position
+          <select id="seconds"><option>0.1</option><option selected>0.3</option><option>0.5</option><option>1</option><option>2</option></select>
+        </label>
+        <button type="button" id="sample" class="ghost">Load sample</button>
+        <button type="submit" id="analyze">Analyze</button>
+        <progress id="progress" max="1" value="0" hidden></progress>
+        <span id="status" role="status"></span>
+      </div>
+    </form>
+  </header>
+
+  <main class="grid">
+    <section id="boardcol" aria-label="Board">
+      <div class="boardrow">
+        <div id="evalbar" title="Evaluation (White's point of view)"><div id="evalfill"></div><span id="evaltext"></span></div>
+        <div id="board"></div>
+      </div>
+      <div class="nav">
+        <button id="first" title="Start (Home)">⏮</button>
+        <button id="prev" title="Previous (←)">◀</button>
+        <button id="next" title="Next (→)">▶</button>
+        <button id="last" title="End (End)">⏭</button>
+        <button id="flip" class="ghost" title="Flip the board">Flip</button>
+        <button id="which" class="ghost" title="Show the position before or after the selected move">Position: before</button>
+      </div>
+      <p id="caption" class="caption"></p>
+      <svg id="graph" viewBox="0 0 480 96" preserveAspectRatio="none" role="img" aria-label="Evaluation graph"></svg>
+    </section>
+
+    <section id="movecol" aria-label="Moves">
+      <h2>Moves</h2>
+      <select id="game" hidden aria-label="Game"></select>
+      <ol id="moves" class="moves"></ol>
+    </section>
+
+    <section id="inspector" aria-label="Inspector">
+      <h2 id="ititle">Inspector</h2>
+      <h3>Explanation</h3>
+      <ul id="sentences" class="sentences"></ul>
+      <h3>Raw annotations <small>{key, params}</small></h3>
+      <pre id="raw" class="raw"></pre>
+      <h3>Engine data</h3>
+      <dl id="engine" class="engine"></dl>
+    </section>
+  </main>
+
+  <section id="narration" aria-label="Narration">
+    <div class="narr-head">
+      <h2>Narration</h2>
+      <label>Language <select id="locale"></select></label>
+      <label>Player <select id="player"><option>both</option><option>white</option><option>black</option></select></label>
+      <span id="count" class="muted"></span>
+    </div>
+    <pre id="report" class="report"></pre>
+  </section>
+
+  <script type="module" src="static/app.js"></script>
+</body>
+</html>
