@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+.env.*
+*.log
+/data/
+/*.pgn
+/bin/stockfish-linux-x86-64-universal
