@@ -27,7 +27,7 @@ section { background: var(--panel); border: 1px solid var(--line); border-radius
 .boardrow { display: flex; gap: 8px; }
 #board { flex: 1; aspect-ratio: 1; min-width: 0; }
 #evalbar { position: relative; width: 22px; background: #2a2d33; border-radius: 4px; overflow: hidden; flex: none; }
-#evalfill { position: absolute; left: 0; right: 0; bottom: 0; height: 50%; background: #eceff4; transition: height .2s ease; }
+#evalfill { position: absolute; left: 0; right: 0; bottom: 0; height: 50%; background: #eceff4; transition: height var(--anim-ms, 180ms) ease-out; }
 #evaltext { position: absolute; left: 0; right: 0; bottom: 2px; text-align: center; font: 600 9px ui-monospace, monospace;
   color: #14161a; writing-mode: vertical-rl; transform: rotate(180deg); padding: 2px 0; }
 .nav { display: flex; gap: 6px; margin: 10px 0 4px 30px; flex-wrap: wrap; }
@@ -56,3 +56,12 @@ section { background: var(--panel); border: 1px solid var(--line); border-radius
 .engine dt { color: var(--muted); } .engine dd { margin: 0; font-family: ui-monospace, monospace; font-size: 12px; overflow-wrap: anywhere; }
 #narration { margin: 0 16px 24px; } .narr-head { display: flex; gap: 16px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
 .narr-head h2 { margin: 0; }
+
+/* The graph's position marker glides to the selected move instead of jumping. */
+#graph .marker { transition: transform var(--anim-ms, 180ms) ease-out, opacity var(--anim-ms, 180ms) ease-out; }
+
+/* Honour the system setting: no motion at all (the board also checks this in JavaScript). */
+@media (prefers-reduced-motion: reduce) {
+  :root { --anim-ms: 0ms !important; }
+  *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; scroll-behavior: auto !important; }
+}

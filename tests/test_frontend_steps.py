@@ -30,3 +30,31 @@ def test_step_planner_under_node(tmp_path):
                             capture_output=True, env={**os.environ, "STEP_FIXTURES": str(fixture)}, timeout=120)
     assert result.returncode == 0, result.stdout + result.stderr
     assert "fail 0" in result.stdout
+
+
+STATIC = ROOT / "web" / "static"
+
+
+def test_speed_menu_offers_the_documented_choices_with_180_selected():
+    html = (STATIC / "index.html").read_text()
+    speeds = (STATIC / "speed.js").read_text()
+    assert 'id="speed"' in html and '<option value="180" selected>' in html
+    assert "SPEEDS = [0, 90, 180, 300, 500]" in speeds and "DEFAULT_SPEED_MS = 180" in speeds
+    for ms in (0, 90, 180, 300, 500):
+        assert f'<option value="{ms}"' in html
+
+
+def test_reduced_motion_is_honoured_in_css_and_in_the_board():
+    css = (STATIC / "style.css").read_text()
+    assert "@media (prefers-reduced-motion: reduce)" in css and "--anim-ms: 0ms !important" in css
+    assert "prefers-reduced-motion: reduce" in (STATIC / "board.js").read_text()
+
+
+def test_board_moves_the_known_piece_and_the_vendored_library_is_not_edited():
+    board = (STATIC / "board.js").read_text()
+    assert "movePiece(step.from, step.to, true)" in board          # driven from known squares
+    assert "setPosition(request.fen, true)" not in board           # never a blind animated diff
+    import subprocess
+    changed = subprocess.run(["git", "diff", "--name-only", "HEAD", "--", "web/static/vendor"],
+                             cwd=ROOT, text=True, capture_output=True).stdout.strip()
+    assert changed == "", f"vendored library was modified: {changed}"

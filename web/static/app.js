@@ -1,5 +1,6 @@
 import { api, postJson } from "./api.js";
 import { START, createBoard } from "./board.js";
+import { parseSavedSpeed } from "./speed.js";
 import { barPercent, drawGraph, formatEval, score } from "./graph.js";
 import { stepBetween } from "./stepplan.js";
 
@@ -111,11 +112,20 @@ function renderGraph() {
 
 function renderSelection() {
   for (const li of $("moves").children) li.classList.toggle("sel", Number(li.dataset.ply) === state.ply);
-  $("moves").querySelector(".sel")?.scrollIntoView({ block: "nearest" });
+  keepRowVisible();
   $("prev").disabled = $("first").disabled = state.ply <= 0;
   $("next").disabled = $("last").disabled = !game() || state.ply >= (game().moves.at(-1)?.ply ?? 0);
   renderBoard(); renderInspector(); renderGraph();
   if (state.jobId) history.replaceState(null, "", `#job=${state.jobId}&game=${state.gameIndex}&ply=${state.ply}`);
+}
+
+// Scroll only the move list (never the page) just enough to show the selected row.
+function keepRowVisible() {
+  const list = $("moves"), row = list.querySelector(".sel");
+  if (!row) return;
+  const l = list.getBoundingClientRect(), r = row.getBoundingClientRect();
+  if (r.top < l.top) list.scrollTop -= l.top - r.top;
+  else if (r.bottom > l.bottom) list.scrollTop += r.bottom - l.bottom;
 }
 
 function select(ply) { state.ply = ply; renderSelection(); }
@@ -215,8 +225,22 @@ async function analyze(event) {
   } finally { $("analyze").disabled = false; }
 }
 
+// Piece speed: remembered in this browser only; also drives the CSS transitions of the eval bar and graph.
+function savedSpeed() {
+  try { return parseSavedSpeed(localStorage.getItem("chess-insight.speed")); } catch { return parseSavedSpeed(null); }
+}
+
+function applySpeed(ms) {
+  board.setSpeed(ms);
+  document.documentElement.style.setProperty("--anim-ms", `${ms}ms`);
+  try { localStorage.setItem("chess-insight.speed", String(ms)); } catch { /* private mode */ }
+}
+
 async function init() {
-  board = createBoard($("board"));
+  board = createBoard($("board"), { speedMs: savedSpeed() });
+  applySpeed(board.speed);
+  $("speed").value = String(board.speed);
+  $("speed").addEventListener("change", (e) => { applySpeed(Number(e.target.value)); e.target.blur(); });
   $("input").addEventListener("submit", analyze);
   $("sample").addEventListener("click", () => { $("pgn").value = SAMPLE; });
   $("file").addEventListener("change", async (e) => {

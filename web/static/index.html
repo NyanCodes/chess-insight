@@ -19,6 +19,12 @@
         <label>Seconds per position
           <select id="seconds"><option>0.1</option><option selected>0.3</option><option>0.5</option><option>1</option><option>2</option></select>
         </label>
+        <label>Piece speed
+          <select id="speed" title="How long a piece takes to move between squares. Off, or the system's reduced-motion setting, shows moves instantly.">
+            <option value="0">Off</option><option value="90">Fast · 90 ms</option><option value="180" selected>Normal · 180 ms</option>
+            <option value="300">Slow · 300 ms</option><option value="500">Very slow · 500 ms</option>
+          </select>
+        </label>
         <button type="button" id="sample" class="ghost">Load sample</button>
         <button type="submit" id="analyze">Analyze</button>
         <progress id="progress" max="1" value="0" hidden></progress>

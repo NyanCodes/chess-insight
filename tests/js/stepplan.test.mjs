@@ -6,6 +6,7 @@ import assert from "node:assert/strict";
 
 import { isAmbiguous, parsePlacement, placement, planStep, squareIndex, stepBetween }
   from "../../web/static/stepplan.js";
+import { DEFAULT_SPEED_MS, SPEEDS, parseSavedSpeed } from "../../web/static/speed.js";
 import { PositionsAnimation } from "../../web/static/vendor/cm-chessboard/src/view/PositionAnimationsQueue.js";
 
 const fixtures = JSON.parse(readFileSync(process.env.STEP_FIXTURES, "utf8"));
@@ -92,4 +93,15 @@ test("stepBetween finds only adjacent plies that exist", () => {
 test("placement ignores everything after the piece field", () => {
   assert.equal(placement("8/8/8/8/8/8/8/8 w - - 0 1"), "8/8/8/8/8/8/8/8");
   assert.equal(parsePlacement("r7/8/8/8/8/8/8/7K")[56], "br");
+});
+
+test("a remembered speed is read back safely: nothing saved must not mean 'off'", () => {
+  assert.equal(parseSavedSpeed(null), DEFAULT_SPEED_MS);          // first visit (this was a real bug)
+  assert.equal(parseSavedSpeed(undefined), DEFAULT_SPEED_MS);
+  assert.equal(parseSavedSpeed(""), DEFAULT_SPEED_MS);
+  assert.equal(parseSavedSpeed("abc"), DEFAULT_SPEED_MS);
+  assert.equal(parseSavedSpeed("700"), DEFAULT_SPEED_MS);         // not one of the offered speeds
+  assert.equal(parseSavedSpeed("0"), 0);                          // an explicit choice of Off is kept
+  for (const ms of SPEEDS) assert.equal(parseSavedSpeed(String(ms)), ms);
+  assert.equal(DEFAULT_SPEED_MS, 180);
 });

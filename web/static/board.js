@@ -9,10 +9,10 @@
 //    follows rapid input instead of falling behind it.
 import { Chessboard, COLOR, FEN } from "./vendor/cm-chessboard/src/Chessboard.js";
 import { Arrows, ARROW_TYPE } from "./vendor/cm-chessboard/src/extensions/arrows/Arrows.js";
+import { DEFAULT_SPEED_MS } from "./speed.js";
 import { placement, planStep } from "./stepplan.js";
 
 export const START = FEN.start;
-export const DEFAULT_SPEED_MS = 180;
 const MIN_FAST_MS = 50;           // the shortest slide used while input arrives faster than a slide
 
 export function createBoard(element, { speedMs = DEFAULT_SPEED_MS } = {}) {
@@ -107,8 +107,9 @@ export function createBoard(element, { speedMs = DEFAULT_SPEED_MS } = {}) {
     // fen: the position to show. arrows: [[type, {from, to}], ...]. step: from stepBetween() when
     // the position is exactly one ply from the one shown before; omit it for anything else.
     show(fen, { arrows = [], step = null } = {}) {
+      // Only input that lands while an update is still running counts as "faster than a slide".
       const now = performance.now();
-      requestGap = now - lastRequestAt;
+      requestGap = working ? now - lastRequestAt : Infinity;
       lastRequestAt = now;
       pending = { fen, arrows, step };
       if (!working) work();
