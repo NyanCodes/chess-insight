@@ -170,23 +170,26 @@ export function createBoard(element, { speedMs = DEFAULT_SPEED_MS } = {}) {
     const translate = (p) => `translate(${p.x}px, ${p.y}px)`;
     hideSquares(description.changed);
 
+    // Drawn bottom to top: captured pieces, then restored ones, then the movers, so a capturing
+    // piece always lands on top. The ease-out brings a mover home quickly, so the captured piece
+    // starts to shrink almost at once and is already small when the mover covers its square.
+    for (const gone of description.vanish) {                    // a capture: shrink and fade
+      const g = ghost(gone.piece, gone.square);
+      if (!g) continue;
+      anims.push(g.node.animate({ opacity: [1, 0], transform: [`${translate(g.at)} scale(1)`, `${translate(g.at)} scale(0.45)`] },
+                                { duration: ms * 0.7, delay: ms * 0.08, easing: "ease-out", fill: "forwards" }));
+    }
+    for (const back of description.appear) {                    // an undone capture: grow back in
+      const g = ghost(back.piece, back.square);
+      if (!g) continue;
+      anims.push(g.node.animate({ opacity: [0, 1], transform: [`${translate(g.at)} scale(0.45)`, `${translate(g.at)} scale(1)`] },
+                                { duration: ms * 0.7, delay: ms * 0.3, easing: "ease-out", fill: "both" }));
+    }
     for (const slide of description.slides) {                   // the mover (and the castling rook)
       const g = ghost(slide.piece, slide.from), end = origin(slide.to);
       if (!g || !end) continue;
       anims.push(g.node.animate({ transform: [translate(g.at), translate(end)] },
                                 { duration: ms, easing: EASE_OUT, fill: "forwards" }));
-    }
-    for (const gone of description.vanish) {                    // a capture: shrink and fade as the mover arrives
-      const g = ghost(gone.piece, gone.square);
-      if (!g) continue;
-      anims.push(g.node.animate({ opacity: [1, 0], transform: [`${translate(g.at)} scale(1)`, `${translate(g.at)} scale(0.5)`] },
-                                { duration: ms * 0.7, delay: ms * 0.2, easing: "ease-in", fill: "forwards" }));
-    }
-    for (const back of description.appear) {                    // an undone capture: grow back in
-      const g = ghost(back.piece, back.square);
-      if (!g) continue;
-      anims.push(g.node.animate({ opacity: [0, 1], transform: [`${translate(g.at)} scale(0.5)`, `${translate(g.at)} scale(1)`] },
-                                { duration: ms * 0.7, delay: ms * 0.3, easing: "ease-out", fill: "both" }));
     }
     let cleaned = false;
     const cleanup = () => {
@@ -202,8 +205,15 @@ export function createBoard(element, { speedMs = DEFAULT_SPEED_MS } = {}) {
     return run;
   }
 
-  function stopEffects() {
-    if (effects) { const e = effects; effects = null; e.cancel(); updateBusy(); }
+  // Skip a running slide to its end. A newer request will draw its own cues; anything else that
+  // interrupts (Flip) must still land the interrupted move's cues, so it passes `land`.
+  function stopEffects({ land = false } = {}) {
+    if (!effects) return;
+    const e = effects;
+    effects = null;
+    e.cancel();
+    updateBusy();
+    if (land && e.landed) e.landed();
   }
 
   // ---------- applying a request ----------
@@ -226,6 +236,7 @@ export function createBoard(element, { speedMs = DEFAULT_SPEED_MS } = {}) {
       if (!pending) drawArrows(request.arrows, run ? 160 : 0);
     };
     if (run) {
+      run.landed = landed;
       run.done.then(() => { if (effects === run) { effects = null; updateBusy(); landed(); } });
     } else {
       landed();
@@ -233,7 +244,7 @@ export function createBoard(element, { speedMs = DEFAULT_SPEED_MS } = {}) {
   }
 
   async function turn() {
-    stopEffects();
+    stopEffects({ land: true });
     flipped = wantFlipped;
     await board.setOrientation(flipped ? COLOR.black : COLOR.white, motionMs() > 0);
     if (shownCue) drawLanding(shownCue, false);                // the badge sits on a different screen square now
