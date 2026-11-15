@@ -37,30 +37,47 @@ export function isAmbiguous(from, to) {
     disappeared[piece] && (appeared[piece] > 1 || disappeared[piece] > 1));
 }
 
-// `from` and `to` are the squares the piece travels along in the direction being played (for a
-// step back they are the played move's squares swapped).
-//   kind "move": slide the piece with movePiece(), then settle on the target position if a
-//                promotion swap, a restored capture or a castling rook still has to change.
-//   kind "diff": a plain position diff is exact (castling, en passant, a restored capture), so
-//                let the library animate every changed square at once.
-//   kind "snap": the data does not describe a legal single move; just show the target.
-export function planStep({ fenFrom, fenTo, from, to }) {
+const squareName = (index) => FILES[index % 8] + (Math.floor(index / 8) + 1);
+
+// Describe exactly what changes on the board during one ply, in the direction being played.
+// `from` and `to` are the squares the moving piece travels along (for a step back they are the
+// played move's squares swapped). Returns null when the data does not describe a single move.
+//
+//   slides:  pieces that travel (the mover, plus the rook when castling). `piece` is what is
+//            drawn at the start, `endPiece` what stands there at the end (they differ on promotion).
+//   vanish:  pieces that disappear (a capture, including en passant).
+//   appear:  pieces that reappear (a capture being undone).
+//   changed: every square whose contents differ, so the board can keep them hidden while the
+//            animation draws them.
+//
+// The result is derived from the two positions alone, so it cannot pair the wrong pieces, which
+// is what makes it safe for identical knights or rooks.
+export function describeStep({ fenFrom, fenTo, from, to }) {
   const a = parsePlacement(fenFrom), b = parsePlacement(fenTo);
   const source = squareIndex(from), target = squareIndex(to);
   const mover = a[source];
-  if (!mover || source === target) return { kind: "snap" };
+  if (!mover || source === target) return null;
 
-  const promotes = mover !== b[target];                       // the piece changes type on arrival
-  if (promotes) {
-    const pawnInvolved = mover[1] === "p" || (b[target] && b[target][1] === "p");
-    return pawnInvolved ? { kind: "move", settle: true } : { kind: "snap" };
+  const slides = [{ piece: mover, endPiece: b[target], from, to }];
+  let vanish = [], appear = [];
+  if (a[target]) vanish.push({ piece: a[target], square: to });          // captured where the mover lands
+  if (b[source]) appear.push({ piece: b[source], square: from });        // restored where the mover left
+  for (let i = 0; i < 64; i++) {
+    if (i === source || i === target || a[i] === b[i]) continue;
+    if (a[i]) vanish.push({ piece: a[i], square: squareName(i) });
+    if (b[i]) appear.push({ piece: b[i], square: squareName(i) });
   }
-  const slid = a.slice();
-  slid[target] = mover;
-  slid[source] = null;
-  const leftover = slid.some((piece, i) => piece !== b[i]);
-  if (!leftover) return { kind: "move", settle: false };      // quiet move or plain capture
-  return isAmbiguous(a, b) ? { kind: "move", settle: true } : { kind: "diff" };
+  if (mover[1] === "k") {                                                 // castling: the rook travels too
+    const gone = vanish.find((v) => v.piece === mover[0] + "r");
+    const came = appear.find((v) => v.piece === mover[0] + "r");
+    if (gone && came) {
+      slides.push({ piece: gone.piece, endPiece: came.piece, from: gone.square, to: came.square });
+      vanish = vanish.filter((v) => v !== gone);
+      appear = appear.filter((v) => v !== came);
+    }
+  }
+  const changed = [...new Set([...slides.flatMap((m) => [m.from, m.to]), ...vanish.map((v) => v.square), ...appear.map((v) => v.square)])];
+  return { slides, vanish, appear, changed };
 }
 
 // Which single ply (if any) separates what the board shows from the position wanted?

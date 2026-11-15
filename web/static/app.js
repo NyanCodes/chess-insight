@@ -2,6 +2,7 @@ import { api, postJson } from "./api.js";
 import { START, createBoard } from "./board.js";
 import { parseSavedSpeed } from "./speed.js";
 import { barPercent, drawGraph, formatEval, score } from "./graph.js";
+import { cueAt } from "./cues.js";
 import { stepBetween } from "./stepplan.js";
 
 const $ = (id) => document.getElementById(id);
@@ -56,20 +57,26 @@ function renderBoard() {
   const sameGame = last && g && last.job === state.jobId && last.game === state.gameIndex;
   const step = sameGame ? stepBetween(g.moves, last.position, position) : null;
   state.shown = g ? { job: state.jobId, game: state.gameIndex, position } : null;
+  // The cue is the move that led to the position on the board: its squares stay tinted and its
+  // verdict sits on the destination square (chess.com style). Analysis arrows are separate.
+  const cue = g ? cueAt(g.moves, position) : null;
   if (!m) {
-    board.show(g ? g.start_fen : START, { step });
+    board.show(g ? g.start_fen : START, { step, cue });
     $("caption").textContent = g ? "Start position" : "";
     setBar(g?.moves[0]?.eval_before);
     return;
   }
+  const lastMove = cue ? ` · last move ${cue.number}${cue.side === "white" ? "." : "..."} ${cue.san}` : "";
   if (state.after) {
-    board.show(m.fen_after, { arrows: [["warning", m.played_squares]], step });
+    // The highlight already shows the move that was played, so no arrow: nothing competes with it.
+    board.show(m.fen_after, { arrows: [], step, cue });
     $("caption").textContent = `After ${label(m)}`;
     setBar(m.eval_after);
   } else {
+    // Before the move: the analysis arrows show what the engine wanted and what was played.
     const same = m.uci === m.best_move_uci;
-    board.show(m.fen_before, { arrows: same ? [["success", m.best_squares]] : [["success", m.best_squares], ["warning", m.played_squares]], step });
-    $("caption").textContent = `Before ${label(m)} — green: engine's best (${m.best_move_san})` + (same ? "" : ", orange: played");
+    board.show(m.fen_before, { arrows: same ? [["success", m.best_squares]] : [["success", m.best_squares], ["warning", m.played_squares]], step, cue });
+    $("caption").textContent = `Before ${label(m)} — green: engine's best (${m.best_move_san})` + (same ? "" : ", orange: played") + lastMove;
     setBar(m.eval_before);
   }
 }

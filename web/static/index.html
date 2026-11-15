@@ -10,6 +10,12 @@
   <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
+  <!-- Glow for a king in check: referenced by the board's "check" marker in style.css. -->
+  <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+    <defs><radialGradient id="check-glow" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#ff2d2d" stop-opacity=".95"/><stop offset="45%" stop-color="#ff2d2d" stop-opacity=".6"/>
+      <stop offset="100%" stop-color="#ff2d2d" stop-opacity="0"/></radialGradient></defs>
+  </svg>
   <header class="top">
     <h1>Chess analyzer <small>inspector</small></h1>
     <form id="input" autocomplete="off">
@@ -21,7 +27,7 @@
         </label>
         <label>Piece speed
           <select id="speed" title="How long a piece takes to move between squares. Off, or the system's reduced-motion setting, shows moves instantly.">
-            <option value="0">Off</option><option value="90">Fast · 90 ms</option><option value="180" selected>Normal · 180 ms</option>
+            <option value="0">Off</option><option value="120">Fast · 120 ms</option><option value="200" selected>Normal · 200 ms</option>
             <option value="300">Slow · 300 ms</option><option value="500">Very slow · 500 ms</option>
           </select>
         </label>

@@ -36,14 +36,27 @@ def describe(board: chess.Board, move: chess.Move, game: str, ply: int) -> dict:
         kingside = chess.square_file(move.to_square) == 6
         rook = [chess.square_name(chess.square(7 if kingside else 0, rank)),
                 chess.square_name(chess.square(5 if kingside else 3, rank))]
+    captured = None
+    if board.is_en_passant(move):
+        sq = chess.square(chess.square_file(move.to_square), chess.square_rank(move.from_square))
+        captured = [chess.square_name(sq), ("w" if board.turn == chess.BLACK else "b") + "p"]
+    elif board.is_capture(move):
+        piece = board.piece_at(move.to_square)
+        captured = [chess.square_name(move.to_square), ("w" if piece.color else "b") + piece.symbol().lower()]
+    mover = board.piece_at(move.from_square)
     san = board.san(move)
     before = board.fen()
     board.push(move)
     after = board.fen()
+    king = board.king(board.turn)
+    checked = board.is_check()
     board.pop()
     return {"game": game, "ply": ply, "san": san, "from": chess.square_name(move.from_square),
             "to": chess.square_name(move.to_square), "fen_before": before, "fen_after": after,
-            "kind": kind, "rook": rook}
+            "kind": kind, "rook": rook, "captured": captured,
+            "mover": ("w" if mover.color else "b") + mover.symbol().lower(),
+            "promotion": (("w" if mover.color else "b") + chess.piece_symbol(move.promotion)) if move.promotion else None,
+            "check": checked, "king_after": chess.square_name(king) if king is not None else None}
 
 
 def named_plies() -> list[dict]:

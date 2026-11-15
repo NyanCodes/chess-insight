@@ -65,3 +65,29 @@ section { background: var(--panel); border: 1px solid var(--line); border-radius
   :root { --anim-ms: 0ms !important; }
   *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; scroll-behavior: auto !important; }
 }
+
+/* ---- the move that was just played ------------------------------------------------------
+   The board squares are warm tan and cream, the page is dark and the analysis arrows are green
+   and orange, so the last-move tint is a cool sky blue: it reads on both square colours, matches
+   the interface's accent, and cannot be confused with the green/orange arrows or the yellow,
+   orange and red verdict badges. The destination is a little stronger than the origin. */
+.cm-chessboard .markers { pointer-events: none; }
+.cm-chessboard .markers .marker.marker-lastmove-from { fill: #1e9bff; opacity: .40; }
+.cm-chessboard .markers .marker.marker-lastmove-to { fill: #1e9bff; opacity: .60; }
+.cm-chessboard .markers .marker.marker-check { fill: url(#check-glow); opacity: 1; }
+#board .html-layer.cues { pointer-events: none; container-type: size; overflow: hidden; }
+
+/* Verdict badge in the destination square's top-right corner; sizes follow the board width
+   (1cqw is 1% of the cue layer, one square is 12.5cqw). */
+.cues .badge {
+  position: absolute; box-sizing: border-box; display: grid; place-items: center;
+  width: 5.2cqw; height: 5.2cqw; border-radius: 50%;
+  left: calc(var(--col) * 12.5% + 12.5% - 5.5cqw); top: calc(var(--row) * 12.5% + .3cqw);
+  font: 800 2.6cqw/1 system-ui, sans-serif; letter-spacing: -.02em; color: #fff;
+  border: .3cqw solid #14161a; box-shadow: 0 .3cqw .8cqw #0009; user-select: none;
+}
+.cues .badge svg { width: 62%; height: 62%; }
+.badge-blunder { background: #d6423d; } .badge-mistake { background: #e07b1f; }
+.badge-inaccuracy { background: #e0b341; color: #2a2205; } .badge-mate { background: #8a55d6; }
+.badge-best { background: #3f9b66; font-size: 3.2cqw; } .badge-good { background: #5a8f72; }
+.badge-book { background: #9a7650; }
