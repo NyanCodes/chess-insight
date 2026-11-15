@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Marker shapes for the board's markers extension: only the filled square we use to tint the
+     last move and a king in check. Drawn for this project; colours come from style.css. -->
+<svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <g id="markerSquare">
+        <rect x="0" y="0" width="40" height="40"/>
+    </g>
+</svg>
