@@ -42,22 +42,33 @@ const svg = (tag, attrs) => {
 const COLORS = { inaccuracy: "#e0b341", mistake: "#e08a3c", blunder: "#e0524d", unclassified_mate: "#a06be0" };
 
 export function drawGraph(root, moves, selectedPly, onSelect) {
-  root.replaceChildren();
   const series = evalSeries(moves);
-  if (series.length < 2) return;
+  if (series.length < 2) { root.replaceChildren(); root.__moves = null; return; }
   const W = 480, H = 96, x = (i) => (i / (series.length - 1)) * W;
   const y = (s) => H / 2 - (Math.max(-CLAMP, Math.min(CLAMP, s ?? 0)) / CLAMP) * (H / 2 - 4);
-  root.append(svg("line", { x1: 0, x2: W, y1: H / 2, y2: H / 2, stroke: "#394050", "stroke-width": 1 }));
-  const points = series.map((s, i) => `${x(i).toFixed(1)},${y(s).toFixed(1)}`);
-  root.append(svg("polygon", { points: `0,${H / 2} ${points.join(" ")} ${W},${H / 2}`, fill: "#5b8def33" }));
-  root.append(svg("polyline", { points: points.join(" "), fill: "none", stroke: "#8fb0ff", "stroke-width": 1.6,
-                                "vector-effect": "non-scaling-stroke" }));
-  moves.forEach((m, i) => {
-    if (COLORS[m.classification]) root.append(svg("circle", { cx: x(i + 1), cy: y(series[i + 1]), r: 3, fill: COLORS[m.classification] }));
-  });
-  if (selectedPly > 0) {
-    root.append(svg("line", { x1: x(selectedPly), x2: x(selectedPly), y1: 0, y2: H, stroke: "#ffffff", "stroke-opacity": .6, "stroke-width": 1 }));
+  // The curve is rebuilt only when the game changes; moving between moves just slides the
+  // marker, which is what lets it glide.
+  if (root.__moves !== moves) {
+    root.replaceChildren();
+    root.append(svg("line", { x1: 0, x2: W, y1: H / 2, y2: H / 2, stroke: "#394050", "stroke-width": 1 }));
+    const points = series.map((s, i) => `${x(i).toFixed(1)},${y(s).toFixed(1)}`);
+    root.append(svg("polygon", { points: `0,${H / 2} ${points.join(" ")} ${W},${H / 2}`, fill: "#5b8def33" }));
+    root.append(svg("polyline", { points: points.join(" "), fill: "none", stroke: "#8fb0ff", "stroke-width": 1.6,
+                                  "vector-effect": "non-scaling-stroke" }));
+    moves.forEach((m, i) => {
+      if (COLORS[m.classification]) root.append(svg("circle", { cx: x(i + 1), cy: y(series[i + 1]), r: 3, fill: COLORS[m.classification] }));
+    });
+    const marker = svg("line", { class: "marker", x1: 0, x2: 0, y1: 0, y2: H, stroke: "#ffffff", "stroke-opacity": .6,
+                                 "stroke-width": 1, "vector-effect": "non-scaling-stroke" });
+    marker.style.transition = "none";                          // first placement must not sweep in from the left
+    root.append(marker);
+    root.__moves = moves;
+    root.__marker = marker;
+    requestAnimationFrame(() => { marker.style.transition = ""; });
   }
+  const marker = root.__marker;
+  marker.style.transform = `translateX(${x(Math.max(0, selectedPly)).toFixed(1)}px)`;
+  marker.style.opacity = selectedPly > 0 ? "1" : "0";
   root.onpointerdown = (event) => {
     const box = root.getBoundingClientRect();
     const index = Math.round(((event.clientX - box.left) / box.width) * (series.length - 1));
