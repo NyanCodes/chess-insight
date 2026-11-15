@@ -1,11 +1,12 @@
 import { api, postJson } from "./api.js";
 import { START, createBoard } from "./board.js";
 import { barPercent, drawGraph, formatEval, score } from "./graph.js";
+import { stepBetween } from "./stepplan.js";
 
 const $ = (id) => document.getElementById(id);
 const SAMPLE = `[Event "Scholar's Mate"]\n\n1. e4 e5 2. Bc4 Nc6 3. Qh5 Nf6 4. Qxf7# 1-0\n\n[Event "Fool's Mate"]\n\n1. f3 e5 2. g4 Qh4# 0-1\n`;
 
-const state = { jobId: null, data: null, gameIndex: 0, ply: 0, after: false, locale: "en" };
+const state = { jobId: null, data: null, gameIndex: 0, ply: 0, after: false, locale: "en", shown: null };
 let board;
 
 // Build DOM with textContent only: PGN headers, SAN and opening names are untrusted input.
@@ -44,21 +45,29 @@ function renderMoves() {
   }
 }
 
+// Number the positions of a game: 0 is the start, n is the position after ply n. The board
+// shows "before" a move (position ply-1) or "after" it (position ply), so moving to the next
+// move, or toggling before/after, is a one-position step that can be animated.
 function renderBoard() {
   const g = game(), m = rowAt(state.ply);
+  const position = m ? (state.after ? m.ply : m.ply - 1) : 0;
+  const last = state.shown;
+  const sameGame = last && g && last.job === state.jobId && last.game === state.gameIndex;
+  const step = sameGame ? stepBetween(g.moves, last.position, position) : null;
+  state.shown = g ? { job: state.jobId, game: state.gameIndex, position } : null;
   if (!m) {
-    board.show(g ? g.start_fen : START);
+    board.show(g ? g.start_fen : START, { step });
     $("caption").textContent = g ? "Start position" : "";
     setBar(g?.moves[0]?.eval_before);
     return;
   }
   if (state.after) {
-    board.show(m.fen_after, [["warning", m.played_squares]]);
+    board.show(m.fen_after, { arrows: [["warning", m.played_squares]], step });
     $("caption").textContent = `After ${label(m)}`;
     setBar(m.eval_after);
   } else {
     const same = m.uci === m.best_move_uci;
-    board.show(m.fen_before, same ? [["success", m.best_squares]] : [["success", m.best_squares], ["warning", m.played_squares]]);
+    board.show(m.fen_before, { arrows: same ? [["success", m.best_squares]] : [["success", m.best_squares], ["warning", m.played_squares]], step });
     $("caption").textContent = `Before ${label(m)} — green: engine's best (${m.best_move_san})` + (same ? "" : ", orange: played");
     setBar(m.eval_before);
   }
@@ -128,7 +137,8 @@ function renderPosition(position) {
   $("moves").replaceChildren(el("li", { class: "empty" }, el("span", { class: "muted", text: "FEN analysis: engine candidates" })));
   const top = position.lines[0];
   const squares = top ? { from: top.best_move_uci.slice(0, 2), to: top.best_move_uci.slice(2, 4) } : null;
-  board.show(position.fen, [["success", squares]]);
+  state.shown = null;
+  board.show(position.fen, { arrows: [["success", squares]] });
   $("caption").textContent = `${position.turn} to move`;
   $("sentences").replaceChildren(el("li", { class: "empty", text: "Explanations are per move, so they need a PGN." }));
   $("raw").textContent = JSON.stringify(position.lines, null, 2);

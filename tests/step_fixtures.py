@@ -13,7 +13,7 @@ NAMED = {
     "capture-promotion": (None, "1. h4 g5 2. hxg5 h6 3. gxh6 Nf6 4. h7 Rg8 5. hxg8=Q+ Nxg8 6. e4 e5"),
     "underpromotion": (None, "1. a4 b5 2. axb5 Nc6 3. b6 Nb4 4. b7 Nd5 5. b8=N Ngf6 6. Nc6 d6"),
     "two-knights": ("k7/8/8/8/8/8/8/1N3N1K w - - 0 1", "1. Nbd2 Kb8 2. Nfe3 Ka8 3. Ndc4 Kb8"),
-    "two-rooks": ("k7/8/8/8/8/8/8/R3R2K w - - 0 1", "1. Rad1 Kb8 2. Re2 Ka8 3. Red2 Kb8"),
+    "two-rooks": ("7k/8/8/8/8/8/8/R3R1K1 w - - 0 1", "1. Rad1 Kh7 2. Re2 Kg6 3. Red2 Kh7"),
 }
 UNIQUE = lambda s: s.replace("Nd2-c4", "Nc4").replace("Rd1-c1", "Rc1")  # noqa: E731
 
