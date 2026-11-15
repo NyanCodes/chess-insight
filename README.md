@@ -51,6 +51,8 @@ A browser inspector: the board, the move list, and the reason behind each classi
 
 Paste a PGN or press **Load sample**, then click any move. The green arrow is the engine's choice, orange is what was played.
 
+Stepping one move at a time (arrow keys, the buttons, or the Position: before/after toggle) slides the piece; castling moves king and rook together, captured pieces fade, and a promotion swaps the piece when it arrives. Clicking a distant move or the evaluation graph jumps instantly. **Piece speed** in the header picks Off, 90, 180 (default), 300 or 500 ms, and the system's reduced-motion setting turns all animation off.
+
 A readable game story, printed in the terminal (the JSON CLI's output piped into the narration):
 
 ```bash
